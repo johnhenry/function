@@ -1,0 +1,4 @@
+name = "lingering-brook"
+type = "javascript"
+account_id = "86b5599ed346a176d5e582b1b1d92dc9"
+workers_dev = true
