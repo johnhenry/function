@@ -4,7 +4,7 @@ const handleRequest = async (request)=> {
   return new Response(randomBytes(bytesLength), {
     headers:{
       "Content-Type": "application/octet-stream",
-      "Content-Disposition": 'attachment; filename="random.bin"'
+      "Content-Disposition": `attachment; filename="${bytesLength}.bin"`
   }});
 };
 addEventListener('fetch', event => {
