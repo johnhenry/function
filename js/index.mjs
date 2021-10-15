@@ -1,5 +1,6 @@
 // https://dept.dokkyomed.ac.jp/dep-m/macro/mammal/en/genus_list.html
 // copy([...document.querySelectorAll(".TaxonSci>a")].map(x=>x.innerText))
+const randomBytes = (N) => globalThis.crypto.getRandomValues(new Uint8ClampedArray(N));
 const genuses = [
   "Acomys",
   "Aepyceros",
