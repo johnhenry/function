@@ -200,7 +200,7 @@ const handleRequest = async (request) => {
     const [,app, ...params] = url.pathname.split("/");
     switch (app) {
       case "genus":
-        const genus = genuses[Math.floor(Math.random * GENUS_LENGTH)];
+        const genus = genuses[Math.floor(Math.random() * GENUS_LENGTH)];
         return new Response(genus, {
           headers: {
             "Content-Type": "text/plain",
