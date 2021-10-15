@@ -196,7 +196,7 @@ const GENUS_LENGTH = genuses.length;
 const handleRequest = async (request) => {
   const url = new URL(request.url);
   try {
-    const [app, ...params] = url.pathname.split("/");
+    const [,app, ...params] = url.pathname.split("/");
     switch (app) {
       case "genus":
         const genus = genuses[Math.floor(Math.random * GENUS_LENGTH)];
