@@ -204,7 +204,7 @@ const genusResponse = (url) => new Response(
 });
 
 const randomResponse = (size, url) => new Response(
-  randomBytes(size), {
+  randomBytes(Math.min(size || 1, MAX)), {
   headers: {
     "Content-Type": "application/octet-stream",
     "Content-Disposition": `attachment; filename="${size}.bin"`,
@@ -220,18 +220,6 @@ const nullResponse = (url) => new Response(
     ["x-source"]: url.host,
   },
 });
-
-const NullResponse = class extends Response {
-  constructor(url){
-    super(`Not Found: ${url.pathname}`, {
-      status: 404,
-      headers: {
-        "Content-Type": "text/plain",
-        ["x-source"]: url.host,
-      },
-    });
-  }
-};
 
 const errorResponse = ({message}, url) => new Response(
   `Internal Server Error: ${message}`, {
@@ -250,10 +238,9 @@ const handleRequest = async (request) => {
       case "genus":
         return genusResponse(url);
       case "bytes":
-        return randomResponse(Math.min(Number(params[0]) || 1, MAX), url);
+        return randomResponse(Number(params[0]), url);
       default:
-        // return nullResponse(url);
-        return new NullResponse(url);
+        return nullResponse(url);
     }
   } catch (error) {
     return errorResponse(error, url);
