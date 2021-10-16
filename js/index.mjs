@@ -3,7 +3,6 @@
 const randomBytes = (N) => globalThis.crypto.getRandomValues(new Uint8ClampedArray(N));
 
 const MAX = 2**16;
-
 const genuses = [
   "Acomys",
   "Aepyceros",
@@ -195,42 +194,37 @@ const genuses = [
   "Wallabia",
   "Zalophus",
 ];
-const GENUS_LENGTH = genuses.length;
 
-const handleRequest = async (request) => {
-  const url = new URL(request.url);
-  try {
-    const [,app, ...params] = url.pathname.split("/");
-    switch (app) {
-      case "genus":
-        const genus = genuses[Math.floor(Math.random() * GENUS_LENGTH)];
-        return new Response(genus, {
-          headers: {
-            "Content-Type": "text/plain",
-            ["x-source"]: url.host,
-          },
-        });
-      case "bytes":
-        const size = Math.min(Number(params[0]) || 1, MAX);
-        return new Response(randomBytes(size), {
-          headers: {
-            "Content-Type": "application/octet-stream",
-            "Content-Disposition": `attachment; filename="${size}.bin"`,
-            ["x-source"]: url.host,
-          },
-        });
-      default:
-        return new Response(`Not Found: ${url.pathname}`, {
-          status: 404,
-          headers: {
-            "Content-Type": "text/plain",
-            ["x-source"]: url.host,
-          },
-        });
-    }
-  } catch ({ message }) {
-    return new Response(`Server Error: ${message}`, {
-      status: 500,
+const genusResponse = (url) => new Response(
+  genuses[Math.floor(Math.random() * genuses.length)], {
+  headers: {
+    "Content-Type": "text/plain",
+    ["x-source"]: url.host,
+  },
+});
+
+const randomResponse = (size, url) => new Response(
+  randomBytes(size), {
+  headers: {
+    "Content-Type": "application/octet-stream",
+    "Content-Disposition": `attachment; filename="${size}.bin"`,
+    ["x-source"]: url.host,
+  },
+});
+
+const nullResponse = (url) => new Response(
+  `Not Found: ${url.pathname}`, {
+  status: 404,
+  headers: {
+    "Content-Type": "text/plain",
+    ["x-source"]: url.host,
+  },
+});
+
+const NullResponse = class extends Response {
+  constructor(url){
+    super(`Not Found: ${url.pathname}`, {
+      status: 404,
       headers: {
         "Content-Type": "text/plain",
         ["x-source"]: url.host,
@@ -238,6 +232,33 @@ const handleRequest = async (request) => {
     });
   }
 };
-addEventListener("fetch", (event) => {
-  event.respondWith(handleRequest(event.request));
+
+const errorResponse = ({message}, url) => new Response(
+  `Internal Server Error: ${message}`, {
+  status: 500,
+  headers: {
+    "Content-Type": "text/plain",
+    ["x-source"]: url.host,
+  },
+});
+
+const handleRequest = async (request) => {
+  const url = new URL(request.url);
+  try {
+    const [,app, ...params] = url.pathname.split("/");
+    switch (app) {
+      case "genus":
+        return genusResponse(url);
+      case "bytes":
+        return randomResponse(Math.min(Number(params[0]) || 1, MAX), url);
+      default:
+        // return nullResponse(url);
+        return new NullResponse(url);
+    }
+  } catch (error) {
+    return errorResponse(error, url);
+  }
+};
+globalThis.addEventListener("fetch", ({respondWith}) => {
+  respondWith(handleRequest(event.request));
 });
