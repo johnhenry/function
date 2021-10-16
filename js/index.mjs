@@ -1,6 +1,9 @@
 // https://dept.dokkyomed.ac.jp/dep-m/macro/mammal/en/genus_list.html
 // copy([...document.querySelectorAll(".TaxonSci>a")].map(x=>x.innerText))
 const randomBytes = (N) => globalThis.crypto.getRandomValues(new Uint8ClampedArray(N));
+
+const MAX = 2**16;
+
 const genuses = [
   "Acomys",
   "Aepyceros",
@@ -208,7 +211,7 @@ const handleRequest = async (request) => {
           },
         });
       case "bytes":
-        const size = params[0] || 1;
+        const size = Math.min(Number(params[0]) || 1, MAX);
         return new Response(randomBytes(size), {
           headers: {
             "Content-Type": "application/octet-stream",
@@ -234,8 +237,6 @@ const handleRequest = async (request) => {
       },
     });
   }
-
-  const bytesLength = Number(url.pathname.split("/")[1]) || 1;
 };
 addEventListener("fetch", (event) => {
   event.respondWith(handleRequest(event.request));
