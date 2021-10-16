@@ -259,6 +259,6 @@ const handleRequest = async (request) => {
     return errorResponse(error, url);
   }
 };
-globalThis.addEventListener("fetch", ({respondWith}) => {
-  respondWith(handleRequest(event.request));
+globalThis.addEventListener("fetch", ({respondWith, request}) => {
+  respondWith(handleRequest(request));
 });
