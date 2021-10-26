@@ -6,7 +6,8 @@
   "main": "index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "prettier --write '**/*.{js,css,json,md}'"
+    "format": "prettier --write '**/*.{js,css,json,md}'",
+    "wrangler": "CF_API_TOKEN=$(cat token) wrangler "
   },
   "author": "(none) <john@iamjohnhenry.com>",
   "license": "MIT",

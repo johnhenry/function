@@ -1,5 +1,6 @@
 // https://dept.dokkyomed.ac.jp/dep-m/macro/mammal/en/genus_list.html
 // copy([...document.querySelectorAll(".TaxonSci>a")].map(x=>x.innerText))
+const log = {console};
 const randomBytes = (N) => globalThis.crypto.getRandomValues(new Uint8ClampedArray(N));
 
 const MAX = 2**16;
@@ -195,38 +196,38 @@ const genuses = [
   "Zalophus",
 ];
 
-const genusResponse = (url) => new Response(
+const genusResponse = ({host}) => new Response(
   genuses[Math.floor(Math.random() * genuses.length)], {
   headers: {
     "Content-Type": "text/plain",
-    ["x-source"]: url.host,
+    ["x-source"]: host,
   },
 });
 
-const randomResponse = (size, url) => new Response(
-  randomBytes(Math.min(size || 1, MAX)), {
+const randomResponse = ({host}, size=0) => new Response(
+  randomBytes(size), {
   headers: {
     "Content-Type": "application/octet-stream",
     "Content-Disposition": `attachment; filename="${size}.bin"`,
-    ["x-source"]: url.host,
+    ["x-source"]: host,
   },
 });
 
-const nullResponse = (url) => new Response(
-  `Not Found: ${url.pathname}`, {
+const nullResponse = ({host, pathname}) => new Response(
+  `There is nothing for you at ${pathname}`, {
   status: 404,
   headers: {
     "Content-Type": "text/plain",
-    ["x-source"]: url.host,
+    ["x-source"]: host,
   },
 });
 
-const errorResponse = ({message}, url) => new Response(
+const errorResponse = ({host}, {message}) => new Response(
   `Internal Server Error: ${message}`, {
   status: 500,
   headers: {
     "Content-Type": "text/plain",
-    ["x-source"]: url.host,
+    ["x-source"]: host,
   },
 });
 
@@ -238,12 +239,14 @@ const handleRequest = async (request) => {
       case "genus":
         return genusResponse(url);
       case "bytes":
-        return randomResponse(Number(params[0]), url);
+        return randomResponse(
+          url,
+          Math.min(Number(params[0] || 0), MAX));
       default:
         return nullResponse(url);
     }
   } catch (error) {
-    return errorResponse(error, url);
+    return errorResponse(url, error);
   }
 };
 globalThis.addEventListener("fetch", (event) => {
